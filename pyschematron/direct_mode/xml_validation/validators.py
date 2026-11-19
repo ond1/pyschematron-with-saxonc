@@ -13,7 +13,8 @@ from typing import Literal, Any
 from elementpath import TextNode, XPathNode
 from elementpath.tree_builders import get_node_tree
 from elementpath.xpath31 import XPath31Parser
-from elementpath.xpath_context import ItemArgType, XPathContext
+from elementpath.xpath_context import XPathContext
+from elementpath.aliases import ItemArgType
 from lxml.etree import ElementTree, tostring, _Element
 
 from pyschematron.direct_mode.schematron.ast import (Schema, ConcretePattern, ConcreteRule, Variable,
@@ -306,22 +307,27 @@ class _RuleValidator:
     def _node_matches_context(self, xml_node: ItemArgType, evaluation_context: EvaluationContext) -> bool:
         """Check if the node we are investigating matches the context of a rule.
 
-        We perform the check by querying the parent of the node for a match on the context of the rule.
-        There may be multiple matches, as such we check if the node is within the matches. If so, the node
-        must match the context query of the Schematron rule.
+        We perform the check by querying all parents of the node for a match on the context of the rule.
+        There may be multiple matches, as such we check if the node is within the matches. If the node is within
+        the matches, the node must match the context query of the Schematron rule.
 
         Args:
             xml_node: the node we are investigating
-            evaluation_context: the evaluation context. We will relativize this to the parent of the XML node.
+            evaluation_context: the evaluation context. We will relativize this to each of the parents of the XML node.
 
         Returns:
             True if the node matches the rule, false otherwise.
         """
-        parent_context = evaluation_context.with_context_item(xml_node.parent)
+        current_node = xml_node
 
-        if matches := self._context_query.evaluate(parent_context):
-            if xml_node in matches:
-                return True
+        while current_node is not None:
+            parent_context = evaluation_context.with_context_item(current_node.parent)
+
+            if matches := self._context_query.evaluate(parent_context):
+                if xml_node in matches:
+                    return True
+            current_node = current_node.parent
+
         return False
 
     def _get_check_validators(self) -> list[_CheckValidator]:

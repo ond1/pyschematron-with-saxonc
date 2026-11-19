@@ -3,6 +3,42 @@ Changelog
 *********
 
 
+Version 1.2.5 (2026-10-17)
+==========================
+
+Other
+-----
+- Fixes two small issues in the Schematron parser. Phases were not correctly added to the list of phases and the title parsing was improved in the case of mixed text and xml tag content.
+
+
+
+Version 1.2.4 (2026-10-13)
+==========================
+
+Other
+-----
+- Upgraded all dependencies.
+
+
+
+Version 1.2.3 (2026-10-09)
+==========================
+
+Other
+-----
+- Fixes issue #22 by iterating over all the parents of a node to check if a node matches. Using unit tests from edyiaeonian.
+
+
+
+Version 1.2.2 (2026-10-09)
+==========================
+
+Other
+-----
+- Fixes bug #23 with the help of code by edyiaeonian
+
+
+
 Version 1.2.1 (2026-07-06)
 ==========================
 

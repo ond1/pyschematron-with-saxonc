@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import copy
+
 """The XPath query bindings.
 
 This uses the adapter pattern around the elementpath library.
@@ -19,8 +21,7 @@ from abc import ABCMeta
 from elementpath import XPathToken, XPath1Parser, XPath2Parser, XPathContext
 from elementpath.xpath3 import XPath3Parser
 from elementpath.xpath31 import XPath31Parser
-from elementpath.xpath_context import ItemArgType
-from elementpath.tree_builders import RootArgType
+from elementpath.aliases import RootArgType, ItemArgType
 
 from pyschematron.direct_mode.xml_validation.queries.base import QueryParser, Query, EvaluationContext, \
     SimpleQueryProcessor, CustomQueryFunction, SimpleCustomQueryFunction
@@ -113,6 +114,9 @@ class XPathEvaluationContext(EvaluationContext):
 
         If no root node is set yet, we return None. Else, we return an XPathContext from the elementpath library.
 
+        This always provides a clean copy of the elementpath XPathContext object since elementpath moves the context
+        item while evaluating a path.
+
         Returns:
              The XPath context if a root node is set, else None.
 
@@ -121,7 +125,7 @@ class XPathEvaluationContext(EvaluationContext):
         """
         if self._xpath_context is None:
             raise MissingRootNodeError('Missing root node in XPath context, please set a root node first.')
-        return self._xpath_context
+        return copy.copy(self._xpath_context)
 
     @override
     def with_context_item(self, xml_item: ItemArgType) -> Self:
